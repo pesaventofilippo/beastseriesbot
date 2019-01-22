@@ -1,0 +1,8 @@
+# Bot Token File
+token.txt
+
+# YouTube v3 API Key
+apikey.txt
+
+# Python Pre-compiled Cache
+__pycache__/
