@@ -1,35 +1,50 @@
-import telepot, requests, json
-
+from telepot import Bot
+from time import sleep
+from schedule import every, run_pending
+from modules.youtube import YouTube
 
 try:
-    f = open('token.txt', 'r')
+    f = open('settings/token.txt', 'r')
     token = f.readline().strip()
     f.close()
 except FileNotFoundError:
     token = input("Please paste the bot Token here: ")
-    f = open('token.txt', 'w')
+    f = open('settings/token.txt', 'w')
     f.write(token)
     f.close()
 
 try:
-    f = open('apikey.txt', 'r')
+    f = open('settings/apikey.txt', 'r')
     apikey = f.readline().strip()
     f.close()
 except FileNotFoundError:
     apikey = input("Please paste the YouTube v3 API Key here: ")
-    f = open('apikey.txt', 'w')
+    f = open('settings/apikey.txt', 'w')
     f.write(apikey)
     f.close()
 
-bot = telepot.Bot(token)
-pewdiepie = "UC-lHJZR3Gqxm24_Vd_AJ5Yw"
-tseries = "UCq-Fj5jknLsUf-MWSy4_brA"
+bot = Bot(token)
+youtube = YouTube(apikey)
 
 
-def getSubscribers(channelId, apiKey):
-    try:
-        r = requests.get('https://www.googleapis.com/youtube/v3/channels?part=statistics&id=' + channelId + '&key=' + apiKey)
-        subscriberCount = json.loads(r.text)["items"][0]["statistics"]["subscriberCount"]
-        return subscriberCount
-    except Exception:
-        return None
+def reply(msg):
+    chatId = msg['from']['id']
+    text = msg['text']
+    name = msg['from']['first_name']
+
+    if text == "/start":
+        pewd, tser, diff = youtube.fetchData()
+        bot.sendMessage(chatId, "<b>Welcome, {0}!</b>\n"
+                                "I'm the BitchLasagna Bot. I can monitor the current situation of PewDiePie vs. T-Series "
+                                "subcount, and send you a daily message with some infos, if you want.\n\n"
+                                "<b>PewDiePie:</b> {1} subs\n"
+                                "<b>T-Series:</b> {2} subs\n"
+                                "<b>Difference:</b> {3} subs".format(name, pewd, tser, diff), parse_mode="HTML")
+
+
+bot.message_loop({'chat': reply})
+every().hour.do(youtube.logData)
+
+while True:
+    sleep(30)
+    run_pending()
