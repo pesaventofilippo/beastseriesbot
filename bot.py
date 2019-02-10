@@ -38,16 +38,24 @@ def sendAlerts():
     if (diff // 1000) < (lastDiff // 1000):
         pendingChats = select(chat for chat in Chat if chat.wantsAlert)[:]
         for chat in pendingChats:
-            bot.sendMessage(chat.chatId, "⚠️ <b>Lasagna Alert!</b>\n"
-                                         "PewDiePie is only {0} suscribers ahead of T-Series.\n"
-                                         "15 minutes ago it was {1}.".format(diff, lastDiff), parse_mode="HTML")
+            if chat.isGroup:
+                chatid_right = int("-100" + str(chat.chatId))
+            else:
+                chatid_right = chat.chatId
+            bot.sendMessage(chatid_right, "⚠️ <b>Lasagna Alert!</b>\n"
+                                          "PewDiePie is only {0} suscribers ahead of T-Series.\n"
+                                          "15 minutes ago it was {1}.".format(diff, lastDiff), parse_mode="HTML")
 
     elif (diff // 1000) > (lastDiff // 1000):
         pendingChats = select(chat for chat in Chat if chat.wantsAlert)[:]
         for chat in pendingChats:
-            bot.sendMessage(chat.chatId, "❇️ <b>Lasagna News!</b>\n"
-                                         "PewDiePie is now {0} suscribers ahead of T-Series.\n"
-                                         "15 minutes ago it was {1}.".format(diff, lastDiff), parse_mode="HTML")
+            if chat.isGroup:
+                chatid_right = int("-100" + str(chat.chatId))
+            else:
+                chatid_right = chat.chatId
+            bot.sendMessage(chatid_right, "❇️ <b>Lasagna News!</b>\n"
+                                          "PewDiePie is now {0} suscribers ahead of T-Series.\n"
+                                          "15 minutes ago it was {1}.".format(diff, lastDiff), parse_mode="HTML")
     lastDiff = diff
 
 
@@ -57,10 +65,13 @@ def reply(msg):
     text = msg['text'].replace("@bitchlasagna_bot", "")
     name = msg['from']['first_name']
 
-    if not Chat.exists(lambda c: c.chatId == chatId):
-        Chat(chatId=chatId)
+    if not Chat.exists(lambda c: c.chatId == int(str(chatId).replace("-100", ""))):
+        if chatId > 0:
+            Chat(chatId=chatId, isGroup=False)
+        else:
+            Chat(chatId=int(str(chatId).replace("-100", "")), isGroup=True)
 
-    chat = Chat.get(chatId=chatId)
+    chat = Chat.get(chatId=int(str(chatId).replace("-100", "")))
 
     if text == "/start":
         pewd, tser, diff = youtube.fetchData()

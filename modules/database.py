@@ -5,6 +5,7 @@ db = Database("sqlite", "../bitchlasagnabot.db", create_db=True)
 
 class Chat(db.Entity):
     chatId = Required(int)
+    isGroup = Required(bool)
     wantsAlert = Required(bool, default=False)
 
 
