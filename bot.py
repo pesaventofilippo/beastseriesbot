@@ -1,6 +1,8 @@
 from telepot import Bot
 from time import sleep
 from schedule import every, run_pending
+from pony.orm import db_session, select
+from modules.database import Chat
 from modules.youtube import YouTube
 
 try:
@@ -25,12 +27,38 @@ except FileNotFoundError:
 
 bot = Bot(token)
 youtube = YouTube(apikey)
+lastDiff = youtube.fetchData()[2:3]
+
+
+def sendAlerts():
+    global lastDiff
+    diff = youtube.fetchData()[2:3]
+
+    if (diff // 1000) < (lastDiff // 1000):
+        pendingChats = select(chat for chat in Chat if chat.wantsAlert)[:]
+        for chat in pendingChats:
+            bot.sendMessage(chat.chatId, "⚠️ <b>Lasagna Alert!</b>\n"
+                                         "PewDiePie is only {0} suscribers ahead of T-Series.\n"
+                                         "15 minutes ago it was {1}.".format(diff, lastDiff), parse_mode="HTML")
+
+    elif (diff // 1000) > (lastDiff // 1000):
+        pendingChats = select(chat for chat in Chat if chat.wantsAlert)[:]
+        for chat in pendingChats:
+            bot.sendMessage(chat.chatId, "❇️ <b>Lasagna News!</b>\n"
+                                         "PewDiePie is now {0} suscribers ahead of T-Series.\n"
+                                         "15 minutes ago it was {1}.".format(diff, lastDiff), parse_mode="HTML")
+    lastDiff = diff
 
 
 def reply(msg):
     chatId = msg['chat']['id']
     text = msg['text'].replace("@bitchlasagna_bot", "")
     name = msg['from']['first_name']
+
+    if not Chat.exists(lambda c: c.chatId == chatId):
+        Chat(chatId=chatId)
+
+    chat = Chat.get(chatId=chatId)
 
     if text == "/start":
         pewd, tser, diff = youtube.fetchData()
@@ -41,9 +69,17 @@ def reply(msg):
                                 "<b>T-Series:</b> {2} subs\n"
                                 "<b>Difference:</b> {3} subs".format(name, pewd, tser, diff), parse_mode="HTML")
 
+    elif text == "/alert":
+        chat.wantsAlert = True
+        bot.sendMessage(chatId, "✅ Alerts have been successfully activated for this chat!")
+
+    elif text == "/alertoff":
+        chat.wantsAlert = False
+        bot.sendMessage(chatId, "🛑 Alerts have been successfully disabled for this chat!")
+
 
 bot.message_loop({'chat': reply})
-every().hour.do(youtube.logData)
+every(15).minutes.do(sendAlerts)
 
 while True:
     sleep(30)

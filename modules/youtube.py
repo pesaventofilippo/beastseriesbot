@@ -23,12 +23,3 @@ class YouTube:
         tCount = self.getSubscribers(self.tseries)
         diffCount = max(pCount, tCount) - min(pCount, tCount)
         return pCount, tCount, diffCount
-
-
-    def logData(self):
-        from datetime import datetime
-        date = datetime.now().strftime("%d/%m/%Y")
-        pewd, tser, diff = self.fetchData()
-        file = open('data/datalog.txt', 'a')
-        file.write("{0}\t{1}\t{2}\t{3}\n".format(date, pewd, tser, diff))
-        file.close()
