@@ -28,8 +28,8 @@ youtube = YouTube(apikey)
 
 
 def reply(msg):
-    chatId = msg['from']['id']
-    text = msg['text']
+    chatId = msg['chat']['id']
+    text = msg['text'].replace("@bitchlasagna_bot", "")
     name = msg['from']['first_name']
 
     if text == "/start":
