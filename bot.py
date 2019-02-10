@@ -30,6 +30,7 @@ youtube = YouTube(apikey)
 lastDiff = youtube.fetchData()[2:3]
 
 
+@db_session
 def sendAlerts():
     global lastDiff
     diff = youtube.fetchData()[2:3]
@@ -50,6 +51,7 @@ def sendAlerts():
     lastDiff = diff
 
 
+@db_session
 def reply(msg):
     chatId = msg['chat']['id']
     text = msg['text'].replace("@bitchlasagna_bot", "")
