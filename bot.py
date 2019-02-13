@@ -81,9 +81,9 @@ def reply(msg):
                                 "/help - Show this list\n"
                                 "/show - Send current subscribers count\n"
                                 "/alert - Toggle on or off trigger notifications.\n"
-                                "<b>NB</b>: In a group, only admins can use this bot."
-                                "<i>Reminder: due to limited API availability, subscribers data is updated about every 2 minutes.</i>",
-                        parse_mode="HTML")
+                                "<b>NB</b>: In a group, only admins can use this bot.\n\n"
+                                "<i>Reminder: due to limited API availability, subscribers data is updated about every 2 minutes.</i>"
+                                "".format(name), parse_mode="HTML")
 
     elif text == "/show":
         bot.sendMessage(chatId, "<b>Current subscribers status</b>\n"
