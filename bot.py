@@ -5,8 +5,6 @@ from pony.orm import db_session, select
 from modules.database import Chat, Data
 from modules.youtube import YouTube
 
-from pprint import pprint
-
 
 @db_session
 def initialize():
@@ -77,14 +75,14 @@ def reply(msg):
                         parse_mode="HTML")
 
     elif text == "/help":
-        bot.sendMessage(chat, "Hi, <b>{0}</b>! I'm the <b>BitchLasagna Bot</b>.\n"
-                              "Here's a brief list of what I can do:\n\n"
-                              "/start - Welcome message\n"
-                              "/help - Show this list\n"
-                              "/show - Send current subscribers count\n"
-                              "/alert - Toggle on or off trigger notifications.\n"
-                              "<b>NB</b>: In a group, only admins can use this bot."
-                              "<i>Reminder: due to limited API availability, subscribers data is updated about every 2 minutes.</i>",
+        bot.sendMessage(chatId, "Hi, <b>{0}</b>! I'm the <b>BitchLasagna Bot</b>.\n"
+                                "Here's a brief list of what I can do:\n\n"
+                                "/start - Welcome message\n"
+                                "/help - Show this list\n"
+                                "/show - Send current subscribers count\n"
+                                "/alert - Toggle on or off trigger notifications.\n"
+                                "<b>NB</b>: In a group, only admins can use this bot."
+                                "<i>Reminder: due to limited API availability, subscribers data is updated about every 2 minutes.</i>",
                         parse_mode="HTML")
 
     elif text == "/show":
@@ -97,11 +95,11 @@ def reply(msg):
     elif text == "/alert":
         chat.wantsAlert = not chat.wantsAlert
         if chat.wantsAlert:
-            bot.sendMessage(chat, "✅ <i>Alerts have been successfully activated for this chat!</i>\n"
-                                  "Use /alert again to toggle them off.", parse_mode="HTML")
+            bot.sendMessage(chatId, "✅ <i>Alerts have been successfully activated for this chat!</i>\n"
+                                    "Use /alert again to toggle them off.", parse_mode="HTML")
         else:
-            bot.sendMessage(chat, "❌ <i>Alerts have been successfully deactivated for this chat.</i>\n"
-                                  "Use /alert again to toggle them on.", parse_mode="HTML")
+            bot.sendMessage(chatId, "❌ <i>Alerts have been successfully deactivated for this chat.</i>\n"
+                                    "Use /alert again to toggle them on.", parse_mode="HTML")
 
 
 initialize()
