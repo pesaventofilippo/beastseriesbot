@@ -1,15 +1,9 @@
-# Telegram Bot API Token
-settings/token.txt
+# Private Setting Files
+token.txt
+apikey.txt
 
-# YouTube API Token
-settings/apikey.txt
+# Bot Users Database
+bitchlasagnabot.db
 
 # Python Pre-compiled Cache
 *__pycache__/
-
-# Bot Users Database
-data/bitchlasagnabot.db
-
-# Logged Data
-data/datalog.txt
-data/graph.png
