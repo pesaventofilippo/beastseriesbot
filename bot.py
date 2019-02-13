@@ -66,16 +66,16 @@ def reply(msg):
             return
 
     if text == "/start":
-        bot.sendMessage(chatId, "<b>Welcome, {0}!</b>\n"
+        bot.sendMessage(chatId, "<b>Welcome, {}!</b>\n"
                                 "I'm the BitchLasagna Bot. I can monitor the current situation of PewDiePie vs. T-Series "
                                 "subcount, send notifications on critical situations and more.\n\n"
-                                "<b>PewDiePie:</b> {1} subs\n"
-                                "<b>T-Series:</b> {2} subs\n"
-                                "<b>Difference:</b> {3} subs".format(name, data.pewdiepie, data.tseries, data.difference),
+                                "<b>PewDiePie:</b> {:,} subs\n"
+                                "<b>T-Series:</b> {:,} subs\n"
+                                "<b>Difference:</b> {:,} subs".format(name, data.pewdiepie, data.tseries, data.difference),
                         parse_mode="HTML")
 
     elif text == "/help":
-        bot.sendMessage(chatId, "Hi, <b>{0}</b>! I'm the <b>BitchLasagna Bot</b>.\n"
+        bot.sendMessage(chatId, "Hi, <b>{}</b>! I'm the <b>BitchLasagna Bot</b>.\n"
                                 "Here's a brief list of what I can do:\n\n"
                                 "/start - Welcome message\n"
                                 "/help - Show this list\n"
@@ -87,9 +87,9 @@ def reply(msg):
 
     elif text == "/show":
         bot.sendMessage(chatId, "<b>Current subscribers status</b>\n"
-                                "<b>PewDiePie:</b> {0} subs\n"
-                                "<b>T-Series:</b> {1} subs\n"
-                                "<b>Difference:</b> {2} subs".format(data.pewdiepie, data.tseries, data.difference),
+                                "<b>PewDiePie:</b> {:,} subs\n"
+                                "<b>T-Series:</b> {:,} subs\n"
+                                "<b>Difference:</b> {:,} subs".format(data.pewdiepie, data.tseries, data.difference),
                         parse_mode="HTML")
 
     elif text == "/alert":
