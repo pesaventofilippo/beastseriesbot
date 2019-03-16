@@ -50,7 +50,7 @@ def reply(msg):
     chatId = msg['chat']['id']
     fromId = msg['from']['id']
     name = msg['from']['first_name']
-    text = msg['text'].replace(bot.getMe()['username'], "")
+    text = msg['text'].replace("@" + bot.getMe()['username'], "")
 
     if not Chat.exists(lambda c: c.chatId == str(chatId)):
         if chatId > 0:
@@ -61,6 +61,7 @@ def reply(msg):
     data = Data.get(id=0)
 
     if chat.isGroup:
+        # Allow only group admins
         member = bot.getChatMember(chatId, fromId)
         if member['status'] not in ['creator', 'administrator']:
             return
