@@ -1,19 +1,25 @@
-from pony.orm import Database, Required, PrimaryKey
+from pony.orm import Database, PrimaryKey, Required
 
-db = Database("sqlite", "../bitchlasagnabot.db", create_db=True)
+db = Database("sqlite", "../data.db", create_db=True)
 
 
 class Chat(db.Entity):
-    chatId = Required(str, unique=True)
-    isGroup = Required(bool)
+    chatId = PrimaryKey(int, sql_type='BIGINT', size=64)
     wantsAlert = Required(bool, default=False)
+
+    @property
+    def isGroup(self) -> bool:
+        return self.chatId < 0
 
 
 class Data(db.Entity):
-    id = PrimaryKey(int, default=0)
-    pewdiepie = Required(int, default=0)
+    id = PrimaryKey(int)
+    mrbeast = Required(int, default=0)
     tseries = Required(int, default=0)
-    difference = Required(int, default=0)
+
+    @property
+    def diff(self) -> int:
+        return self.mrbeast - self.tseries
 
 
 db.generate_mapping(create_tables=True)

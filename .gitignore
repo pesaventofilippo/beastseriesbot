@@ -1,9 +1,5 @@
-# Private Setting Files
-token.txt
-apikey.txt
-
-# Bot Users Database
-bitchlasagnabot.db
-
-# Python Pre-compiled Cache
-*__pycache__/
+.idea
+__pycache__/
+.DS_Store
+*.db
+*.json

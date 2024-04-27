@@ -1,5 +1,5 @@
-# bitchlasagnabot
-Just a Telegram bot to keep updated with the PewDiePie/T-Series situation.
+# beastseriesbot (formerly bitchlasagnabot)
+A simple Telegram bot to keep updated with the Mr. Beast vs. T-Series battle for most subscribers.
 
 ## Features
-As of now, the bot can only display the current difference between the two YouTubers. I'm planning to add plenty of features as soon as I find some spare time.
+For now, the bot only displays the current difference between the two YouTubers.  

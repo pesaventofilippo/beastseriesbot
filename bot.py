@@ -1,97 +1,57 @@
-from telepot import Bot
+from json import load
 from time import sleep
-from schedule import every, run_pending
-from pony.orm import db_session, select
+from telepotpro import Bot
+from pony.orm import db_session
+from modules.api import SubscriberAPI
 from modules.database import Chat, Data
-from modules.youtube import YouTube
 
+with open("settings.json") as f:
+    settings = load(f)
 
-@db_session
-def initialize():
-    global bot
-    global youtube
-
-    try:
-        f = open('token.txt', 'r')
-        token = f.readline().strip()
-        f.close()
-    except FileNotFoundError:
-        token = input("Please paste the bot Token here: ")
-        f = open('token.txt', 'w')
-        f.write(token)
-        f.close()
-
-    try:
-        f = open('apikey.txt', 'r')
-        apikey = f.readline().strip()
-        f.close()
-    except FileNotFoundError:
-        apikey = input("Please paste the YouTube v3 API Key here: ")
-        f = open('apikey.txt', 'w')
-        f.write(apikey)
-        f.close()
-
-    bot = Bot(token)
-    youtube = YouTube(apikey)
-
-    if not Data.exists(lambda d: d.id == 0):
-        fetch = youtube.fetchData()
-        Data(id=0, pewdiepie=fetch[0], tseries=fetch[1], difference=fetch[2])
+bot = Bot(settings['token'])
+api = SubscriberAPI()
 
 
 @db_session
 def updateData():
     data = Data.get(id=0)
-    data.pewdiepie, data.tseries, data.difference = youtube.fetchData()
+    data.mrbeast, _ = api.get_subscribers("UCX6OQ3DkcsbYNE6H8uQQuVA")
+    data.tseries, _ = api.get_subscribers("UCq-Fj5jknLsUf-MWSy4_brA")
+
+
+@db_session
+def leaderboard() -> str:
+    data = Data.get(id=0)
+
+    mrbeast = f"<b>MrBeast:</b> <code>{data.mrbeast:,}</code>"
+    tseries = f"<b>T-Series:</b> <code>{data.tseries:,}</code>"
+    p1 = mrbeast if data.mrbeast > data.tseries else tseries
+    p2 = tseries if data.mrbeast > data.tseries else mrbeast
+
+    return (f"📊 <b>Current subscribers status</b>\n"
+            f"🏆 {p1}\n"
+            f"🥈 {p2}\n"
+            f"<b>Gap:</b> <code>{abs(data.diff):,}</code> subs")
 
 
 @db_session
 def reply(msg):
     chatId = msg['chat']['id']
-    fromId = msg['from']['id']
     name = msg['from']['first_name']
-    text = msg['text'].replace("@" + bot.getMe()['username'], "")
+    text = msg.get("text").replace("@" + bot.getMe()['username'], "")
 
-    if not Chat.exists(lambda c: c.chatId == str(chatId)):
-        if chatId > 0:
-            Chat(chatId=str(chatId), isGroup=False)
-        else:
-            Chat(chatId=str(chatId), isGroup=True)
-    chat = Chat.get(chatId=str(chatId))
-    data = Data.get(id=0)
-
-    if chat.isGroup:
-        # Allow only group admins
-        member = bot.getChatMember(chatId, fromId)
-        if member['status'] not in ['creator', 'administrator']:
-            return
+    if not (chat := Chat.get(id=chatId)):
+        chat = Chat(id=chatId)
 
     if text == "/start":
-        bot.sendMessage(chatId, "<b>Welcome, {}!</b>\n"
-                                "I'm the BitchLasagna Bot. I can monitor the current situation of PewDiePie vs. T-Series "
-                                "subcount, send notifications on critical situations and more.\n\n"
-                                "<b>PewDiePie:</b> {:,} subs\n"
-                                "<b>T-Series:</b> {:,} subs\n"
-                                "<b>Difference:</b> {:,} subs".format(name, data.pewdiepie, data.tseries, data.difference),
-                        parse_mode="HTML")
+        bot.sendMessage(chatId, f"<b>Hi, {name}!</b>\n"
+                                f"I'm the BeastSeries Bot 🤖. I monitor the live subsriber count of MrBeast vs. T-Series.\n"
+                                f"I can also send you notifications if you use /alert!\n\n"
+                                f"{leaderboard()}\n"
+                                f"<i>Hint: use</i> /subs <i> to only show the stats.</i>", parse_mode="HTML")
 
-    elif text == "/help":
-        bot.sendMessage(chatId, "Hi, <b>{}</b>! I'm the <b>BitchLasagna Bot</b>.\n"
-                                "Here's a brief list of what I can do:\n\n"
-                                "/start - Welcome message\n"
-                                "/help - Show this list\n"
-                                "/show - Send current subscribers count\n"
-                                "/alert - Toggle on or off trigger notifications.\n"
-                                "<b>NB</b>: In a group, only admins can use this bot.\n\n"
-                                "<i>Reminder: due to limited API availability, subscribers data is updated about every 2 minutes.</i>"
-                                "".format(name), parse_mode="HTML")
-
-    elif text == "/show":
-        bot.sendMessage(chatId, "<b>Current subscribers status</b>\n"
-                                "<b>PewDiePie:</b> {:,} subs\n"
-                                "<b>T-Series:</b> {:,} subs\n"
-                                "<b>Difference:</b> {:,} subs".format(data.pewdiepie, data.tseries, data.difference),
-                        parse_mode="HTML")
+    elif text == "/subs":
+        bot.sendMessage(chatId, leaderboard(), parse_mode="HTML")
 
     elif text == "/alert":
         chat.wantsAlert = not chat.wantsAlert
@@ -103,10 +63,16 @@ def reply(msg):
                                     "Use /alert again to toggle them on.", parse_mode="HTML")
 
 
-initialize()
-bot.message_loop({'chat': reply})
-every(2).minutes.do(updateData)
+def main():
+    with db_session:
+        if not Data.exists():
+            Data(id=0)
 
-while True:
-    sleep(30)
-    run_pending()
+    bot.message_loop({'chat': reply})
+    while True:
+        updateData()
+        sleep(120)
+
+
+if __name__ == "__main__":
+    main()
