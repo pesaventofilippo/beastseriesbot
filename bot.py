@@ -40,8 +40,8 @@ def reply(msg):
     name = msg['from']['first_name']
     text = msg.get("text").replace("@" + bot.getMe()['username'], "")
 
-    if not (chat := Chat.get(id=chatId)):
-        chat = Chat(id=chatId)
+    if not (chat := Chat.get(chatId=chatId)):
+        chat = Chat(chatId=chatId)
 
     if text == "/start":
         bot.sendMessage(chatId, f"<b>Hi, {name}!</b>\n"
