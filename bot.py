@@ -2,7 +2,8 @@ from json import load
 from time import sleep
 from telepotpro import Bot
 from pony.orm import db_session
-from telepotpro.namedtuple import InlineQueryResultArticle, InputTextMessageContent
+from telepotpro.namedtuple import (InlineQueryResultArticle, InputTextMessageContent,
+                                   InlineKeyboardMarkup, InlineKeyboardButton)
 from modules.api import SubscriberAPI
 from modules.database import Chat, Data
 
@@ -49,7 +50,10 @@ def reply(msg):
                                 f"I'm the BeastSeries Bot 🤖. I monitor the live subsriber count of MrBeast vs. T-Series.\n"
                                 f"I can also send you notifications if you use /alert!\n\n"
                                 f"{leaderboard()}\n\n"
-                                f"<i>Hint: use</i> /subs <i>to only show the stats.</i>", parse_mode="HTML")
+                                f"<i>Hint: use</i> /subs <i>to only show the stats.\n"
+                                f"The bot also works inline and in groups!</i>",
+                        parse_mode="HTML", reply_markup=InlineKeyboardMarkup(inline_keyboard=[[
+                            InlineKeyboardButton(text="💬 Try me inline!", switch_inline_query="")]]))
 
     elif text == "/subs":
         bot.sendMessage(chatId, leaderboard(), parse_mode="HTML")
