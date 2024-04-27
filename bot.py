@@ -28,7 +28,7 @@ def leaderboard() -> str:
     p1 = mrbeast if data.mrbeast > data.tseries else tseries
     p2 = tseries if data.mrbeast > data.tseries else mrbeast
 
-    return (f"<b>Current subscribers status</b>\n"
+    return (f"<b>Current subscribers status:</b>\n"
             f"🏆 {p1}\n"
             f"🥈 {p2}\n"
             f"<b>Gap:</b> <code>{data.diff:,}</code> subs")
@@ -48,7 +48,7 @@ def reply(msg):
                                 f"I'm the BeastSeries Bot 🤖. I monitor the live subsriber count of MrBeast vs. T-Series.\n"
                                 f"I can also send you notifications if you use /alert!\n\n"
                                 f"{leaderboard()}\n\n"
-                                f"<i>Hint: use</i> /subs <i> to only show the stats.</i>", parse_mode="HTML")
+                                f"<i>Hint: use</i> /subs <i>to only show the stats.</i>", parse_mode="HTML")
 
     elif text == "/subs":
         bot.sendMessage(chatId, leaderboard(), parse_mode="HTML")
