@@ -7,10 +7,6 @@ class Chat(db.Entity):
     chatId = PrimaryKey(int, sql_type='BIGINT', size=64)
     wantsAlert = Required(bool, default=False)
 
-    @property
-    def isGroup(self) -> bool:
-        return self.chatId < 0
-
 
 class Data(db.Entity):
     id = PrimaryKey(int)

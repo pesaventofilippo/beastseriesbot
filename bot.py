@@ -2,6 +2,7 @@ from json import load
 from time import sleep
 from telepotpro import Bot
 from pony.orm import db_session
+from telepotpro.namedtuple import InlineQueryResultArticle, InputTextMessageContent
 from modules.api import SubscriberAPI
 from modules.database import Chat, Data
 
@@ -63,12 +64,32 @@ def reply(msg):
                                     "Use /alert again to toggle them on.", parse_mode="HTML")
 
 
+@db_session
+def query(msg):
+    queryId = msg['id']
+    data = Data.get(id=0)
+
+    results = [
+        InlineQueryResultArticle(
+            id="subs",
+            title="MrBeast vs. T-Series",
+            input_message_content=InputTextMessageContent(
+                message_text=leaderboard(),
+                parse_mode="HTML"
+            ),
+            description=f"{data.mrbeast:,} vs. {data.tseries:,}",
+            thumb_url="https://i.imgur.com/lyZvq8T.png"
+        )
+    ]
+    bot.answerInlineQuery(queryId, results, cache_time=60, is_personal=False)
+
+
 def main():
     with db_session:
         if not Data.exists():
             Data(id=0)
 
-    bot.message_loop({'chat': reply})
+    bot.message_loop({'chat': reply, 'inline_query': query})
     while True:
         updateData()
         sleep(120)
