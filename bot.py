@@ -28,10 +28,10 @@ def leaderboard() -> str:
     p1 = mrbeast if data.mrbeast > data.tseries else tseries
     p2 = tseries if data.mrbeast > data.tseries else mrbeast
 
-    return (f"📊 <b>Current subscribers status</b>\n"
+    return (f"<b>Current subscribers status</b>\n"
             f"🏆 {p1}\n"
             f"🥈 {p2}\n"
-            f"<b>Gap:</b> <code>{abs(data.diff):,}</code> subs")
+            f"<b>Gap:</b> <code>{data.diff:,}</code> subs")
 
 
 @db_session
@@ -47,7 +47,7 @@ def reply(msg):
         bot.sendMessage(chatId, f"<b>Hi, {name}!</b>\n"
                                 f"I'm the BeastSeries Bot 🤖. I monitor the live subsriber count of MrBeast vs. T-Series.\n"
                                 f"I can also send you notifications if you use /alert!\n\n"
-                                f"{leaderboard()}\n"
+                                f"{leaderboard()}\n\n"
                                 f"<i>Hint: use</i> /subs <i> to only show the stats.</i>", parse_mode="HTML")
 
     elif text == "/subs":
@@ -56,10 +56,10 @@ def reply(msg):
     elif text == "/alert":
         chat.wantsAlert = not chat.wantsAlert
         if chat.wantsAlert:
-            bot.sendMessage(chatId, "✅ <i>Alerts have been successfully activated for this chat!</i>\n"
+            bot.sendMessage(chatId, "🔔 <i>Alerts have been successfully activated for this chat!</i>\n"
                                     "Use /alert again to toggle them off.", parse_mode="HTML")
         else:
-            bot.sendMessage(chatId, "❌ <i>Alerts have been successfully deactivated for this chat.</i>\n"
+            bot.sendMessage(chatId, "🔕 <i>Alerts have been successfully deactivated for this chat.</i>\n"
                                     "Use /alert again to toggle them on.", parse_mode="HTML")
 
 
