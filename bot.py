@@ -27,8 +27,12 @@ def sendAlerts():
     global LAST_MILESTONE
     data = Data.get(id=0)
 
+    if LAST_MILESTONE is None:
+        LAST_MILESTONE = data.diff
+        return
+
     # send every 500k milestone
-    if (LAST_MILESTONE is not None) and (data.diff // 500_000 > LAST_MILESTONE // 500_000):
+    if data.diff // 500_000 > LAST_MILESTONE // 500_000:
         for chat in Chat.select(lambda c: c.wantsAlert):
             bot.sendMessage(chat.chatId, f"📈 <b>Good news!</b>\n"
                                          f"The gap between MrBeast and T-Series has reached {data.diff} subs 👀",
@@ -43,7 +47,6 @@ def sendAlerts():
                                 parse_mode="HTML")
 
         LAST_MILESTONE = data.diff
-
 
 
 @db_session
