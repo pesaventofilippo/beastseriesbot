@@ -12,6 +12,7 @@ with open("settings.json") as f:
 
 bot = Bot(settings['token'])
 api = SubscriberAPI()
+LAST_MILESTONE = None
 
 
 @db_session
@@ -19,6 +20,30 @@ def updateData():
     data = Data.get(id=0)
     data.mrbeast, _ = api.get_subscribers("UCX6OQ3DkcsbYNE6H8uQQuVA")
     data.tseries, _ = api.get_subscribers("UCq-Fj5jknLsUf-MWSy4_brA")
+
+
+@db_session
+def sendAlerts():
+    global LAST_MILESTONE
+    data = Data.get(id=0)
+
+    # send every 500k milestone
+    if (LAST_MILESTONE is not None) and (data.diff // 500_000 > LAST_MILESTONE // 500_000):
+        for chat in Chat.select(lambda c: c.wantsAlert):
+            bot.sendMessage(chat.chatId, f"📈 <b>Good news!</b>\n"
+                                         f"The gap between MrBeast and T-Series has reached {data.diff} subs 👀",
+                            parse_mode="HTML")
+
+        # if overtaken
+        if LAST_MILESTONE < 0 and data.diff > 0:
+            for chat in Chat.select(lambda c: c.wantsAlert):
+                bot.sendMessage(chat.chatId, f"🚨 <b>BREAKING NEWS!</b>\n"
+                                             f"<b>MrBeast</b> has overtaken <b>T-Series</b> in subscribers! 🎉\n\n"
+                                             f"{leaderboard()}",
+                                parse_mode="HTML")
+
+        LAST_MILESTONE = data.diff
+
 
 
 @db_session
@@ -67,6 +92,9 @@ def reply(msg):
             bot.sendMessage(chatId, "🔕 <i>Alerts have been successfully deactivated for this chat.</i>\n"
                                     "Use /alert again to toggle them on.", parse_mode="HTML")
 
+    elif text == "/users":
+        bot.sendMessage(chatId, f"👤 <b>Users:</b> {Chat.select().count()}", parse_mode="HTML")
+
 
 @db_session
 def query(msg):
@@ -96,6 +124,7 @@ def main():
     bot.message_loop({'chat': reply, 'inline_query': query})
     while True:
         updateData()
+        sendAlerts()
         sleep(120)
 
 
